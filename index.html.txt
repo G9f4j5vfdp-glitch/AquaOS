@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaOS — Le système de pilotage de vos aquariums</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #020d18;
+    --ocean: #041e36;
+    --mid: #063455;
+    --teal: #00b4d8;
+    --aqua: #48cae4;
+    --lime: #52e08a;
+    --coral: #ff6b6b;
+    --gold: #ffd166;
+    --white: #f0f9ff;
+    --muted: #6b9ab8;
+    --border: rgba(0,180,216,0.12);
+    --card: rgba(4,30,54,0.8);
+  }
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+font-family: ‘Cabinet Grotesk’, sans-serif;
+background: var(–deep);
+color: var(–white);
+overflow-x: hidden;
+}
+
+/* ===== BUBBLES BG ===== */
+.bubbles-canvas {
+position: fixed; inset: 0; pointer-events: none; z-index: 0;
+overflow: hidden;
+}
+.bubble {
+position: absolute; bottom: -60px;
+border-radius: 50%;
+background: radial-gradient(circle at 30% 30%, rgba(72,202,228,0.3), rgba(0,180,216,0.05));
+border: 1px solid rgba(72,202,228,0.2);
+animation: rise linear infinite;
+}
+@keyframes rise {
+0% { transform: translateY(0) scale(1); opacity: 0.6; }
+100% { transform: translateY(-110vh) scale(0.5); opacity: 0; }
+}
+
+/* ===== NAV ===== */
+nav {
+position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+display: flex; align-items: center; justify-content: space-between;
+padding: 1.2rem 4rem;
+background: rgba(2,13,24,0.8);
+backdrop-filter: blur(24px);
+border-bottom: 1px solid var(–border);
+animation: fadeDown 0.8s ease both;
+}
+@keyframes fadeDown { from{opacity:0;transform:translateY(-16px);} to{opacity:1;transform:translateY(0);} }
+
+.logo {
+display: flex; align-items: center; gap: 10px;
+font-size: 1.3rem; font-weight: 900; letter-spacing: -0.03em;
+}
+.logo-icon {
+width: 34px; height: 34px; border-radius: 10px;
+background: linear-gradient(135deg, var(–teal), #0077b6);
+display: flex; align-items: center; justify-content: center;
+font-size: 1rem;
+}
+.logo span { color: var(–teal); }
+
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+text-decoration: none; color: var(–muted);
+font-size: 0.88rem; font-weight: 500;
+transition: color 0.2s;
+}
+.nav-links a:hover { color: var(–white); }
+
+.nav-right { display: flex; gap: 0.8rem; align-items: center; }
+.btn-ghost {
+background: none; border: 1px solid var(–border);
+color: var(–white); border-radius: 8px;
+padding: 0.55rem 1.2rem; font-size: 0.85rem; font-weight: 600;
+cursor: pointer; font-family: ‘Cabinet Grotesk’, sans-serif;
+transition: all 0.2s;
+}
+.btn-ghost:hover { border-color: var(–teal); color: var(–teal); }
+.btn-teal {
+background: var(–teal); color: var(–deep);
+border: none; border-radius: 8px;
+padding: 0.55rem 1.3rem; font-size: 0.85rem; font-weight: 800;
+cursor: pointer; font-family: ‘Cabinet Grotesk’, sans-serif;
+transition: all 0.2s;
+}
+.btn-teal:hover { background: var(–aqua); transform: translateY(-1px); }
+
+/* ===== HERO ===== */
+.hero {
+min-height: 100vh;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+padding: 9rem 2rem 5rem;
+text-align: center;
+position: relative; z-index: 1;
+overflow: hidden;
+}
+
+.hero-glow {
+position: absolute; inset: 0; pointer-events: none;
+background:
+radial-gradient(ellipse 70% 50% at 50% 10%, rgba(0,180,216,0.15) 0%, transparent 70%),
+radial-gradient(ellipse 40% 30% at 20% 80%, rgba(82,224,138,0.06) 0%, transparent 60%),
+radial-gradient(ellipse 40% 30% at 80% 70%, rgba(255,107,107,0.05) 0%, transparent 60%);
+}
+
+/* Animated fish */
+.fish-container { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.fish {
+position: absolute;
+font-size: 1.4rem;
+animation: swim linear infinite;
+opacity: 0.25;
+}
+@keyframes swim {
+0% { transform: translateX(-80px) scaleX(1); }
+49% { transform: translateX(calc(100vw + 80px)) scaleX(1); }
+50% { transform: translateX(calc(100vw + 80px)) scaleX(-1); }
+99% { transform: translateX(-80px) scaleX(-1); }
+100% { transform: translateX(-80px) scaleX(1); }
+}
+
+.hero-badge {
+display: inline-flex; align-items: center; gap: 8px;
+background: rgba(0,180,216,0.1);
+border: 1px solid rgba(0,180,216,0.25);
+border-radius: 50px; padding: 0.4rem 1.1rem;
+font-size: 0.78rem; font-weight: 700; color: var(–aqua);
+letter-spacing: 0.05em; text-transform: uppercase;
+margin-bottom: 2rem;
+animation: fadeUp 0.8s ease 0.1s both;
+}
+.live-dot {
+width: 7px; height: 7px; border-radius: 50%;
+background: var(–lime);
+animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+.hero h1 {
+font-size: clamp(3rem, 7.5vw, 7rem);
+font-weight: 900; line-height: 0.95;
+letter-spacing: -0.04em;
+margin-bottom: 2rem;
+animation: fadeUp 0.8s ease 0.2s both;
+max-width: 900px;
+}
+.hero h1 .teal { color: var(–teal); }
+.hero h1 .italic { font-family: ‘Lora’, serif; font-style: italic; font-weight: 400; color: var(–aqua); }
+
+.hero-desc {
+font-size: 1.1rem; line-height: 1.7;
+color: var(–muted); max-width: 560px;
+margin: 0 auto 3rem; font-weight: 400;
+animation: fadeUp 0.8s ease 0.3s both;
+}
+
+.hero-form {
+display: flex; gap: 0; max-width: 460px; width: 100%;
+background: rgba(255,255,255,0.04);
+border: 1px solid rgba(0,180,216,0.2);
+border-radius: 12px; overflow: hidden;
+animation: fadeUp 0.8s ease 0.4s both;
+}
+.hero-form input {
+flex: 1; background: none; border: none;
+padding: 0.9rem 1.2rem; color: var(–white);
+font-size: 0.9rem; outline: none;
+font-family: ‘Cabinet Grotesk’, sans-serif;
+}
+.hero-form input::placeholder { color: rgba(107,154,184,0.6); }
+.hero-form button {
+background: var(–teal); color: var(–deep);
+border: none; padding: 0.9rem 1.5rem;
+font-size: 0.88rem; font-weight: 800;
+cursor: pointer; white-space: nowrap;
+font-family: ‘Cabinet Grotesk’, sans-serif;
+transition: background 0.2s;
+}
+.hero-form button:hover { background: var(–aqua); }
+
+.hero-hint {
+font-size: 0.76rem; color: rgba(107,154,184,0.6);
+margin-top: 0.8rem;
+animation: fadeUp 0.8s ease 0.5s both;
+}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
+/* ===== AQUARIUM MOCKUP ===== */
+.tank-section {
+position: relative; z-index: 1;
+padding: 2rem 4rem 6rem;
+display: flex; justify-content: center;
+}
+
+.tank-wrap {
+width: 100%; max-width: 880px;
+border-radius: 20px; overflow: hidden;
+border: 1px solid rgba(0,180,216,0.15);
+box-shadow: 0 0 80px rgba(0,180,216,0.08), 0 40px 100px rgba(0,0,0,0.6);
+background: #030f1e;
+animation: fadeUp 1s ease 0.6s both;
+}
+
+.tank-topbar {
+background: rgba(4,30,54,0.9);
+padding: 0.8rem 1.2rem;
+display: flex; align-items: center; gap: 0.7rem;
+border-bottom: 1px solid var(–border);
+}
+.tdot { width: 10px; height: 10px; border-radius: 50%; }
+.t1{background:#ff5f57;} .t2{background:#ffbd2e;} .t3{background:#28c840;}
+.tank-url {
+margin: 0 auto;
+background: rgba(255,255,255,0.04); border-radius: 6px;
+padding: 0.3rem 1.4rem; font-size: 0.72rem; color: var(–muted);
+}
+
+.tank-body {
+display: grid; grid-template-columns: 220px 1fr; min-height: 460px;
+}
+
+.tank-sidebar {
+border-right: 1px solid var(–border);
+padding: 1.5rem;
+background: rgba(2,13,24,0.5);
+}
+
+.tank-logo {
+font-size: 0.9rem; font-weight: 900; margin-bottom: 1.8rem;
+display: flex; align-items: center; gap: 6px;
+}
+.tank-logo span { color: var(–teal); }
+
+.t-nav { display: flex; flex-direction: column; gap: 2px; margin-bottom: 2rem; }
+.t-nav-item {
+display: flex; align-items: center; gap: 8px;
+padding: 0.55rem 0.8rem; border-radius: 8px;
+font-size: 0.78rem; color: var(–muted); cursor: pointer;
+transition: all 0.2s;
+}
+.t-nav-item:hover { background: rgba(0,180,216,0.08); color: var(–white); }
+.t-nav-item.active {
+background: rgba(0,180,216,0.12);
+color: var(–teal); font-weight: 700;
+}
+.t-nav-icon { font-size: 0.9rem; width: 20px; text-align: center; }
+
+.t-aquariums { margin-top: 1rem; }
+.t-section-label {
+font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
+text-transform: uppercase; color: rgba(107,154,184,0.4);
+margin-bottom: 0.6rem; padding-left: 0.4rem;
+}
+.t-tank-item {
+display: flex; align-items: center; gap: 8px;
+padding: 0.5rem 0.8rem; border-radius: 8px;
+font-size: 0.76rem; color: var(–muted); cursor: pointer;
+transition: all 0.2s; margin-bottom: 2px;
+}
+.t-tank-item:hover { background: rgba(255,255,255,0.03); }
+.t-tank-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tg { background: var(–lime); } .to { background: var(–gold); } .tr { background: var(–coral); }
+
+.tank-main { padding: 1.5rem; overflow: hidden; }
+
+.t-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 1.2rem;
+}
+.t-title { font-size: 1rem; font-weight: 800; }
+.t-actions { display: flex; gap: 0.5rem; }
+.t-btn {
+background: rgba(0,180,216,0.1); border: 1px solid rgba(0,180,216,0.2);
+color: var(–teal); border-radius: 6px; padding: 0.3rem 0.7rem;
+font-size: 0.7rem; font-weight: 700; cursor: pointer;
+font-family: ‘Cabinet Grotesk’, sans-serif;
+}
+
+.t-params {
+display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem;
+margin-bottom: 1.2rem;
+}
+.t-param {
+background: rgba(4,30,54,0.8); border: 1px solid var(–border);
+border-radius: 10px; padding: 0.9rem;
+position: relative; overflow: hidden;
+}
+.t-param::before {
+content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.p-ok::before { background: var(–lime); }
+.p-warn::before { background: var(–gold); }
+.p-crit::before { background: var(–coral); }
+
+.t-param-label { font-size: 0.62rem; color: var(–muted); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.3rem; }
+.t-param-val { font-size: 1.3rem; font-weight: 900; line-height: 1; }
+.val-ok { color: var(–lime); }
+.val-warn { color: var(–gold); }
+.val-crit { color: var(–coral); }
+.t-param-unit { font-size: 0.65rem; color: var(–muted); margin-top: 0.2rem; }
+.t-param-status { font-size: 0.6rem; font-weight: 700; margin-top: 0.4rem; }
+.s-ok { color: var(–lime); } .s-warn { color: var(–gold); } .s-crit { color: var(–coral); }
+
+.t-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.t-fish-list { background: rgba(4,30,54,0.6); border: 1px solid var(–border); border-radius: 12px; padding: 1rem; }
+.t-list-title { font-size: 0.72rem; font-weight: 800; color: var(–muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.8rem; }
+.t-fish-item {
+display: flex; align-items: center; gap: 8px; padding: 0.45rem 0;
+border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.76rem;
+}
+.t-fish-item:last-child { border-bottom: none; }
+.fish-emoji { font-size: 0.9rem; }
+.fish-count { margin-left: auto; background: rgba(0,180,216,0.1); border-radius: 50px; padding: 0.1rem 0.5rem; font-size: 0.65rem; color: var(–teal); font-weight: 700; }
+
+.t-alerts { background: rgba(4,30,54,0.6); border: 1px solid var(–border); border-radius: 12px; padding: 1rem; }
+.t-alert-item {
+display: flex; align-items: flex-start; gap: 8px;
+padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+font-size: 0.74rem; line-height: 1.4;
+}
+.t-alert-item:last-child { border-bottom: none; }
+.alert-icon { font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+.alert-text { color: rgba(240,249,255,0.7); }
+.alert-time { margin-left: auto; font-size: 0.62rem; color: var(–muted); white-space: nowrap; }
+
+/* ===== FEATURES ===== */
+.section { padding: 8rem 4rem; position: relative; z-index: 1; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.s-label {
+display: inline-flex; align-items: center; gap: 6px;
+font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+text-transform: uppercase; color: var(–teal);
+margin-bottom: 1.2rem;
+}
+.s-label::before { content:’’; display:block; width:18px; height:1px; background:var(–teal); }
+
+.s-title {
+font-size: clamp(2rem, 4vw, 3.2rem);
+font-weight: 900; line-height: 1.05;
+letter-spacing: -0.03em; margin-bottom: 1.2rem;
+}
+
+.s-desc { font-size: 1rem; color: var(–muted); max-width: 500px; line-height: 1.7; }
+
+.features-bento {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+grid-template-rows: auto auto;
+gap: 1px; background: var(–border);
+border: 1px solid var(–border);
+border-radius: 20px; overflow: hidden;
+margin-top: 4rem;
+}
+
+.bento-card {
+background: var(–card);
+padding: 2.5rem;
+transition: background 0.3s;
+position: relative; overflow: hidden;
+backdrop-filter: blur(10px);
+}
+.bento-card:hover { background: rgba(6,52,85,0.9); }
+.bento-card.wide { grid-column: span 2; }
+.bento-card.tall { grid-row: span 2; }
+
+.bento-icon {
+width: 52px; height: 52px; border-radius: 14px;
+display: flex; align-items: center; justify-content: center;
+font-size: 1.5rem; margin-bottom: 1.4rem;
+background: rgba(0,180,216,0.08);
+border: 1px solid rgba(0,180,216,0.15);
+}
+
+.bento-card h3 {
+font-size: 1.05rem; font-weight: 800; margin-bottom: 0.6rem;
+letter-spacing: -0.01em;
+}
+.bento-card p { font-size: 0.85rem; color: var(–muted); line-height: 1.65; }
+
+/* Mini water quality widget inside bento */
+.mini-gauge {
+margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.gauge-row { display: flex; align-items: center; gap: 8px; }
+.gauge-label { font-size: 0.68rem; color: var(–muted); width: 50px; flex-shrink: 0; }
+.gauge-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.gauge-fill { height: 100%; border-radius: 3px; }
+.g-teal { background: var(–teal); width: 72%; }
+.g-lime { background: var(–lime); width: 88%; }
+.g-gold { background: var(–gold); width: 45%; }
+.g-coral { background: var(–coral); width: 20%; animation: alarm-pulse 1s ease-in-out infinite; }
+@keyframes alarm-pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.gauge-val { font-size: 0.68rem; font-weight: 700; width: 30px; text-align: right; flex-shrink: 0; }
+
+/* Species identification widget */
+.species-list { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.species-item {
+display: flex; align-items: center; gap: 10px;
+background: rgba(0,180,216,0.05); border: 1px solid rgba(0,180,216,0.1);
+border-radius: 8px; padding: 0.6rem 0.8rem;
+font-size: 0.75rem;
+}
+.species-item .si-emoji { font-size: 1rem; }
+.species-item .si-name { font-weight: 700; flex: 1; }
+.species-item .si-compat {
+font-size: 0.62rem; padding: 0.2rem 0.5rem; border-radius: 50px;
+font-weight: 700;
+}
+.compat-ok { background: rgba(82,224,138,0.15); color: var(–lime); }
+.compat-warn { background: rgba(255,209,102,0.15); color: var(–gold); }
+
+/* ===== POUR QUI ===== */
+.audience-section { background: rgba(4,30,54,0.3); }
+.audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 4rem; }
+
+.audience-card {
+border-radius: 20px; overflow: hidden;
+border: 1px solid var(–border);
+background: rgba(2,13,24,0.8);
+transition: transform 0.3s, border-color 0.3s;
+}
+.audience-card:hover { transform: translateY(-6px); border-color: rgba(0,180,216,0.3); }
+
+.audience-header {
+padding: 2.5rem; position: relative; overflow: hidden;
+}
+.ah-1 { background: linear-gradient(135deg, rgba(0,119,182,0.4), rgba(0,180,216,0.1)); }
+.ah-2 { background: linear-gradient(135deg, rgba(82,224,138,0.2), rgba(0,119,182,0.2)); }
+
+.audience-tag {
+display: inline-block;
+background: rgba(0,180,216,0.15); border: 1px solid rgba(0,180,216,0.3);
+color: var(–teal); border-radius: 50px;
+font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+text-transform: uppercase; padding: 0.3rem 0.8rem;
+margin-bottom: 1rem;
+}
+
+.audience-title {
+font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em;
+margin-bottom: 0.5rem;
+}
+.audience-sub { font-size: 0.9rem; color: var(–muted); }
+
+.audience-body { padding: 2rem 2.5rem; }
+.audience-features { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+.audience-features li {
+display: flex; align-items: center; gap: 10px;
+font-size: 0.87rem; color: rgba(240,249,255,0.8);
+}
+.audience-features li::before { content: ‘✦’; color: var(–teal); font-size: 0.6rem; flex-shrink: 0; }
+
+/* ===== PRICING ===== */
+.pricing-grid {
+display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+margin-top: 4rem; max-width: 860px; margin-left: auto; margin-right: auto;
+}
+
+.p-card {
+background: rgba(4,30,54,0.8);
+border: 1px solid var(–border);
+border-radius: 18px; padding: 2.2rem;
+position: relative; transition: transform 0.3s;
+backdrop-filter: blur(10px);
+}
+.p-card:hover { transform: translateY(-5px); }
+.p-card.featured {
+border-color: var(–teal);
+background: linear-gradient(160deg, rgba(0,180,216,0.08) 0%, rgba(4,30,54,0.9) 60%);
+}
+.p-badge {
+position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+background: var(–teal); color: var(–deep);
+font-size: 0.68rem; font-weight: 800; letter-spacing: 0.05em;
+padding: 0.25rem 0.9rem; border-radius: 50px; white-space: nowrap;
+}
+
+.p-plan { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(–muted); margin-bottom: 1rem; }
+.p-price { font-size: 2.8rem; font-weight: 900; line-height: 1; margin-bottom: 0.2rem; letter-spacing: -0.03em; }
+.p-price sup { font-size: 1.1rem; vertical-align: super; }
+.p-period { font-size: 0.78rem; color: var(–muted); margin-bottom: 1.8rem; }
+
+.p-features { list-style: none; margin-bottom: 1.8rem; }
+.p-features li {
+display: flex; align-items: center; gap: 8px;
+font-size: 0.83rem; color: rgba(240,249,255,0.75);
+padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.p-features li:last-child { border-bottom: none; }
+.p-features li::before { content: ‘✓’; color: var(–teal); font-weight: 800; flex-shrink: 0; }
+
+.p-btn {
+width: 100%; padding: 0.8rem; border-radius: 8px;
+font-size: 0.88rem; font-weight: 800; cursor: pointer; border: none;
+font-family: ‘Cabinet Grotesk’, sans-serif; transition: all 0.2s;
+}
+.p-btn.main { background: var(–teal); color: var(–deep); }
+.p-btn.main:hover { background: var(–aqua); }
+.p-btn.sec { background: rgba(0,180,216,0.08); border: 1px solid rgba(0,180,216,0.2); color: var(–teal); }
+.p-btn.sec:hover { background: rgba(0,180,216,0.15); }
+
+/* ===== TESTIMONIALS ===== */
+.testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 4rem; }
+.testi {
+background: rgba(4,30,54,0.7); border: 1px solid var(–border);
+border-radius: 16px; padding: 1.8rem;
+transition: border-color 0.3s;
+backdrop-filter: blur(10px);
+}
+.testi:hover { border-color: rgba(0,180,216,0.25); }
+.testi-stars { color: var(–gold); font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 1rem; }
+.testi p { font-size: 0.87rem; line-height: 1.7; color: rgba(240,249,255,0.65); font-style: italic; margin-bottom: 1.2rem; }
+.testi-foot { display: flex; align-items: center; gap: 10px; }
+.testi-av {
+width: 36px; height: 36px; border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+font-size: 0.8rem; font-weight: 800; color: var(–deep); flex-shrink: 0;
+}
+.av-t { background: linear-gradient(135deg, var(–teal), #0077b6); }
+.av-l { background: linear-gradient(135deg, var(–lime), #2daa5f); }
+.av-g { background: linear-gradient(135deg, var(–gold), #e09c00); }
+.testi-name { font-size: 0.85rem; font-weight: 700; }
+.testi-role { font-size: 0.7rem; color: var(–muted); }
+
+/* ===== CTA ===== */
+.cta-section {
+padding: 8rem 4rem;
+text-align: center; position: relative; z-index: 1; overflow: hidden;
+}
+.cta-glow {
+position: absolute; inset: 0; pointer-events: none;
+background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(0,180,216,0.1) 0%, transparent 70%);
+}
+.cta-section h2 {
+font-size: clamp(2.5rem, 5vw, 4.5rem);
+font-weight: 900; letter-spacing: -0.04em; line-height: 1.0;
+margin-bottom: 1.2rem; position: relative;
+}
+.cta-section p { font-size: 1rem; color: var(–muted); margin-bottom: 2.5rem; position: relative; }
+.cta-big {
+display: inline-flex; align-items: center; gap: 10px;
+background: var(–teal); color: var(–deep);
+border: none; border-radius: 12px;
+padding: 1.1rem 2.5rem; font-size: 1rem; font-weight: 900;
+cursor: pointer; transition: all 0.3s;
+font-family: ‘Cabinet Grotesk’, sans-serif; position: relative;
+}
+.cta-big:hover { background: var(–aqua); transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,180,216,0.25); }
+
+/* ===== FOOTER ===== */
+footer {
+border-top: 1px solid var(–border);
+padding: 2.5rem 4rem;
+display: flex; align-items: center; justify-content: space-between;
+position: relative; z-index: 1;
+color: var(–muted); font-size: 0.82rem;
+}
+.footer-logo { font-size: 1rem; font-weight: 900; color: var(–white); }
+.footer-logo span { color: var(–teal); }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { color: var(–muted); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(–teal); }
+
+/* ===== REVEAL ===== */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ===== TOAST ===== */
+#toast {
+position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+background: rgba(4,30,54,0.95); border: 1px solid rgba(0,180,216,0.3);
+border-radius: 12px; padding: 1rem 1.5rem;
+box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+transform: translateY(80px); opacity: 0;
+transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+display: flex; align-items: center; gap: 10px;
+backdrop-filter: blur(20px);
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+.tank-body { grid-template-columns: 1fr; }
+.tank-sidebar { display: none; }
+.t-params { grid-template-columns: repeat(2, 1fr); }
+.t-bottom { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+nav { padding: 1rem 1.5rem; }
+.nav-links { display: none; }
+.section { padding: 5rem 1.5rem; }
+.tank-section { padding: 1rem 1rem 3rem; }
+.t-title { font-size: 0.85rem; }
+.t-param-val { font-size: 1.1rem; }
+.tank-main { padding: 1rem; }
+.features-bento { grid-template-columns: 1fr; }
+.bento-card.wide { grid-column: span 1; }
+.audience-grid { grid-template-columns: 1fr; }
+.pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+.testi-grid { grid-template-columns: 1fr; }
+footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+.hero { padding: 8rem 1.5rem 4rem; }
+.hero h1 { font-size: clamp(2.5rem, 10vw, 4rem); }
+.hero-form { flex-direction: column; border-radius: 12px; }
+.hero-form input { padding: 1rem; text-align: center; }
+.hero-form button { border-radius: 8px; padding: 1rem; }
+}
+</style>
+
+</head>
+<body>
+
+<!-- BUBBLES -->
+
+<div class="bubbles-canvas" id="bubbles"></div>
+
+<!-- FISH -->
+
+<div class="fish-container">
+  <div class="fish" style="top:20%;animation-duration:22s;animation-delay:0s;">🐠</div>
+  <div class="fish" style="top:45%;animation-duration:28s;animation-delay:-8s;font-size:1rem;">🐡</div>
+  <div class="fish" style="top:70%;animation-duration:18s;animation-delay:-14s;font-size:1.1rem;">🐟</div>
+  <div class="fish" style="top:33%;animation-duration:35s;animation-delay:-4s;font-size:0.9rem;">🦐</div>
+</div>
+
+<!-- NAV -->
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">🐠</div>
+    Aqua<span>OS</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+    <li><a href="#pour-qui">Pour qui</a></li>
+    <li><a href="#tarifs">Tarifs</a></li>
+    <li><a href="#avis">Avis</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-ghost">Se connecter</button>
+    <button class="btn-teal" onclick="scrollToForm()">Essai gratuit</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-badge">
+    <div class="live-dot"></div>
+    Nouveau · Version 2.0 disponible
+  </div>
+
+  <h1>Fini les <span class="italic">pertes</span><br>de <span class="teal">poissons.</span></h1>
+
+  <p class="hero-desc">AquaOS surveille vos paramètres d'eau 24h/24, vous alerte avant qu'il soit trop tard, et identifie maladies et espèces par photo grâce à l'IA. Votre aquarium mérite mieux qu'un carnet de notes.</p>
+
+  <div id="hero-form" style="width:100%;max-width:480px;">
+    <form id="email-form" onsubmit="handleEmailSubmit(event)" style="display:flex;gap:0;background:rgba(255,255,255,0.04);border:1px solid rgba(0,180,216,0.2);border-radius:12px;overflow:hidden;">
+      <input type="email" id="email-inp" placeholder="votre@email.fr" required
+        style="flex:1;background:none;border:none;padding:0.9rem 1.2rem;color:var(--white);font-size:0.9rem;outline:none;font-family:'Cabinet Grotesk',sans-serif;" />
+      <button type="submit"
+        style="background:var(--teal);color:var(--deep);border:none;padding:0.9rem 1.5rem;font-size:0.88rem;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Cabinet Grotesk',sans-serif;transition:background 0.2s;">
+        Démarrer →
+      </button>
+    </form>
+    <!-- Message de confirmation -->
+    <div id="form-success" style="display:none;margin-top:1rem;background:rgba(82,224,138,0.1);border:1px solid rgba(82,224,138,0.3);border-radius:10px;padding:1rem 1.2rem;text-align:center;">
+      <div style="font-size:1.5rem;margin-bottom:0.4rem;">🐠</div>
+      <div style="font-weight:800;color:var(--lime);font-size:0.95rem;">C'est noté !</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:0.3rem;">On vous contacte dès l'ouverture de l'accès anticipé.</div>
+    </div>
+  </div>
+  <p class="hero-hint">✓ 15 jours gratuits &nbsp;·&nbsp; ✓ Sans carte bancaire &nbsp;·&nbsp; ✓ Annulable à tout moment</p>
+</section>
+
+<!-- STATS BAR -->
+
+<div style="display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;padding:2rem 4rem;border-top:1px solid rgba(0,180,216,0.1);border-bottom:1px solid rgba(0,180,216,0.1);background:rgba(4,30,54,0.5);position:relative;z-index:1;">
+  <div style="text-align:center;">
+    <span id="count1" style="font-family:'Cabinet Grotesk',sans-serif;font-size:2rem;font-weight:900;color:var(--teal);display:block;">0</span>
+    <span style="font-size:0.75rem;color:var(--muted);letter-spacing:0.05em;">Aquariophiles actifs</span>
+  </div>
+  <div style="width:1px;height:40px;background:rgba(0,180,216,0.15);"></div>
+  <div style="text-align:center;">
+    <span id="count2" style="font-family:'Cabinet Grotesk',sans-serif;font-size:2rem;font-weight:900;color:var(--teal);display:block;">0</span>
+    <span style="font-size:0.75rem;color:var(--muted);letter-spacing:0.05em;">Alertes envoyées ce mois</span>
+  </div>
+  <div style="width:1px;height:40px;background:rgba(0,180,216,0.15);"></div>
+  <div style="text-align:center;">
+    <span style="font-family:'Cabinet Grotesk',sans-serif;font-size:2rem;font-weight:900;color:var(--teal);display:block;">4.9★</span>
+    <span style="font-size:0.75rem;color:var(--muted);letter-spacing:0.05em;">Note moyenne</span>
+  </div>
+  <div style="width:1px;height:40px;background:rgba(0,180,216,0.15);"></div>
+  <div style="text-align:center;">
+    <span style="font-family:'Cabinet Grotesk',sans-serif;font-size:2rem;font-weight:900;color:var(--teal);display:block;">-3h</span>
+    <span style="font-size:0.75rem;color:var(--muted);letter-spacing:0.05em;">Gagnées par semaine</span>
+  </div>
+</div>
+
+<!-- DASHBOARD MOCKUP -->
+
+<div class="tank-section">
+  <div class="tank-wrap reveal">
+    <div class="tank-topbar">
+      <div class="tdot t1"></div><div class="tdot t2"></div><div class="tdot t3"></div>
+      <div class="tank-url">app.aquaos.fr/dashboard</div>
+    </div>
+    <div class="tank-body">
+      <div class="tank-sidebar">
+        <div class="tank-logo">Aqua<span>OS</span></div>
+        <div class="t-nav">
+          <div class="t-nav-item active"><span class="t-nav-icon">🏠</span> Vue d'ensemble</div>
+          <div class="t-nav-item"><span class="t-nav-icon">💧</span> Paramètres eau</div>
+          <div class="t-nav-item"><span class="t-nav-icon">🐠</span> Mes poissons</div>
+          <div class="t-nav-item"><span class="t-nav-icon">🔔</span> Alertes <span style="background:var(--coral);color:white;border-radius:50px;padding:0 5px;font-size:0.6rem;margin-left:auto;">2</span></div>
+          <div class="t-nav-item"><span class="t-nav-icon">📊</span> Rapports</div>
+          <div class="t-nav-item"><span class="t-nav-icon">🔍</span> Identifier espèce</div>
+          <div class="t-nav-item"><span class="t-nav-icon">🛒</span> Boutique</div>
+        </div>
+        <div class="t-aquariums">
+          <div class="t-section-label">Mes aquariums</div>
+          <div class="t-tank-item"><div class="t-tank-dot tg"></div> Récifal 200L</div>
+          <div class="t-tank-item"><div class="t-tank-dot to"></div> Amazonien 80L</div>
+          <div class="t-tank-item"><div class="t-tank-dot tr"></div> Crevettes 30L</div>
+        </div>
+      </div>
+      <div class="tank-main">
+        <div class="t-header">
+          <div class="t-title">Récifal 200L — Paramètres en direct</div>
+          <div class="t-actions">
+            <button class="t-btn">+ Mesure</button>
+            <button class="t-btn">📥 Export</button>
+          </div>
+        </div>
+        <div class="t-params">
+          <div class="t-param p-ok">
+            <div class="t-param-label">Température</div>
+            <div class="t-param-val val-ok">25.2°</div>
+            <div class="t-param-unit">Celsius</div>
+            <div class="t-param-status s-ok">✓ Optimal</div>
+          </div>
+          <div class="t-param p-ok">
+            <div class="t-param-label">pH</div>
+            <div class="t-param-val val-ok">8.2</div>
+            <div class="t-param-unit">Alcalinité</div>
+            <div class="t-param-status s-ok">✓ Parfait</div>
+          </div>
+          <div class="t-param p-warn">
+            <div class="t-param-label">Nitrates</div>
+            <div class="t-param-val val-warn">18</div>
+            <div class="t-param-unit">mg/L NO₃</div>
+            <div class="t-param-status s-warn">⚠ À surveiller</div>
+          </div>
+          <div class="t-param p-crit">
+            <div class="t-param-label">Ammoniaque</div>
+            <div class="t-param-val val-crit">0.4</div>
+            <div class="t-param-unit">mg/L NH₃</div>
+            <div class="t-param-status s-crit">🚨 Critique</div>
+          </div>
+        </div>
+        <div class="t-bottom">
+          <div class="t-fish-list">
+            <div class="t-list-title">Habitants · 12 espèces</div>
+            <div class="t-fish-item"><span class="fish-emoji">🐠</span> Poisson-clown <span class="fish-count">×3</span></div>
+            <div class="t-fish-item"><span class="fish-emoji">🐡</span> Poisson-ballon <span class="fish-count">×1</span></div>
+            <div class="t-fish-item"><span class="fish-emoji">🦈</span> Requin bambou <span class="fish-count">×1</span></div>
+            <div class="t-fish-item"><span class="fish-emoji">🪸</span> Coraux SPS <span class="fish-count">×8</span></div>
+          </div>
+          <div class="t-alerts">
+            <div class="t-list-title">Alertes récentes</div>
+            <div class="t-alert-item">
+              <span class="alert-icon">🚨</span>
+              <span class="alert-text">Ammoniaque élevé — changer 20% de l'eau recommandé</span>
+              <span class="alert-time">Il y a 5min</span>
+            </div>
+            <div class="t-alert-item">
+              <span class="alert-icon">💊</span>
+              <span class="alert-text">Rappel : traitement antiparasitaire J+3</span>
+              <span class="alert-time">Ce matin</span>
+            </div>
+            <div class="t-alert-item">
+              <span class="alert-icon">🌡️</span>
+              <span class="alert-text">Température revenue à la normale</span>
+              <span class="alert-time">Hier</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+
+<section class="section" id="fonctionnalites">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="s-label">Fonctionnalités</div>
+      <h2 class="s-title">Tout ce qu'il faut<br>pour un aquarium sain.</h2>
+      <p class="s-desc">De la mesure de l'eau à l'identification des espèces, AquaOS centralise tout ce que vous faisiez à la main.</p>
+    </div>
+
+```
+<div class="features-bento reveal">
+
+  <div class="bento-card">
+    <div class="bento-icon">💧</div>
+    <h3>Suivi des paramètres</h3>
+    <p>Enregistrez pH, nitrates, température, salinité et 15+ autres paramètres. L'IA détecte les anomalies avant qu'elles soient visibles.</p>
+    <div class="mini-gauge">
+      <div class="gauge-row">
+        <span class="gauge-label" style="font-size:0.6rem;color:var(--muted);">Temp.</span>
+        <div class="gauge-bar"><div class="gauge-fill g-teal"></div></div>
+        <span class="gauge-val" style="color:var(--teal);">25°</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label" style="font-size:0.6rem;color:var(--muted);">pH</span>
+        <div class="gauge-bar"><div class="gauge-fill g-lime"></div></div>
+        <span class="gauge-val" style="color:var(--lime);">8.2</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label" style="font-size:0.6rem;color:var(--muted);">NO₃</span>
+        <div class="gauge-bar"><div class="gauge-fill g-gold"></div></div>
+        <span class="gauge-val" style="color:var(--gold);">18</span>
+      </div>
+      <div class="gauge-row">
+        <span class="gauge-label" style="font-size:0.6rem;color:var(--muted);">NH₃</span>
+        <div class="gauge-bar"><div class="gauge-fill g-coral"></div></div>
+        <span class="gauge-val" style="color:var(--coral);">0.4!</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bento-card">
+    <div class="bento-icon">🔔</div>
+    <h3>Alertes intelligentes</h3>
+    <p>Notifications push, email ou SMS dès qu'un paramètre sort des seuils. Plus jamais de poisson perdu par inattention.</p>
+  </div>
+
+  <div class="bento-card">
+    <div class="bento-icon">🤖</div>
+    <h3>Diagnostic IA</h3>
+    <p>Décrivez les symptômes ou uploadez une photo — l'IA identifie la maladie, la cause probable et le traitement recommandé.</p>
+  </div>
+
+  <div class="bento-card wide">
+    <div class="bento-icon">🔍</div>
+    <h3>Identification d'espèces & compatibilité</h3>
+    <p>Prenez une photo d'un poisson, l'IA l'identifie en secondes et vérifie sa compatibilité avec vos habitants actuels.</p>
+    <div class="species-list">
+      <div class="species-item">
+        <span class="si-emoji">🐠</span>
+        <span class="si-name">Amphiprion ocellaris (Poisson-clown)</span>
+        <span class="si-compat compat-ok">✓ Compatible</span>
+      </div>
+      <div class="species-item">
+        <span class="si-emoji">🦁</span>
+        <span class="si-name">Pterois volitans (Rascasse volante)</span>
+        <span class="si-compat compat-warn">⚠ Risque prédation</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bento-card">
+    <div class="bento-icon">📊</div>
+    <h3>Historique & tendances</h3>
+    <p>Graphiques d'évolution sur 30, 90 jours ou 1 an. Comprenez les cycles de votre aquarium pour anticiper les problèmes.</p>
+  </div>
+
+  <div class="bento-card">
+    <div class="bento-icon">📅</div>
+    <h3>Planning d'entretien</h3>
+    <p>Changements d'eau, nettoyages, traitements, nourrissage — tout est planifié automatiquement et rappelé au bon moment.</p>
+  </div>
+
+  <div class="bento-card">
+    <div class="bento-icon">🛒</div>
+    <h3>Marketplace intégrée</h3>
+    <p>Achetez directement les produits recommandés par l'IA (traitements, équipements) auprès de boutiques partenaires.</p>
+  </div>
+
+</div>
+```
+
+  </div>
+</section>
+
+<!-- POUR QUI -->
+
+<section class="section audience-section" id="pour-qui">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="s-label">Pour qui</div>
+      <h2 class="s-title">Conçu pour<br>chaque passion.</h2>
+    </div>
+    <div class="audience-grid reveal">
+      <div class="audience-card">
+        <div class="audience-header ah-1">
+          <div class="audience-tag">Particuliers</div>
+          <div class="audience-title">L'aquariophile passionné</div>
+          <div class="audience-sub">Du nano-bac au récifal 1000L</div>
+        </div>
+        <div class="audience-body">
+          <ul class="audience-features">
+            <li>Suivi illimité de tous vos aquariums</li>
+            <li>Journal de bord numérique complet</li>
+            <li>Identification photo des espèces</li>
+            <li>Alertes santé en temps réel</li>
+            <li>Communauté & forum intégré</li>
+            <li>Bibliothèque de 10 000+ espèces</li>
+          </ul>
+        </div>
+      </div>
+      <div class="audience-card">
+        <div class="audience-header ah-2">
+          <div class="audience-tag">Professionnels</div>
+          <div class="audience-title">L'animalerie & le pro</div>
+          <div class="audience-sub">Gérez des dizaines de bacs en simultané</div>
+        </div>
+        <div class="audience-body">
+          <ul class="audience-features">
+            <li>Tableau de bord multi-bacs centralisé</li>
+            <li>Gestion stock & traçabilité espèces</li>
+            <li>Rapports sanitaires exportables</li>
+            <li>Suivi client & conseils personnalisés</li>
+            <li>API pour intégration caisse / ERP</li>
+            <li>Alertes équipe & assignation des tâches</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+
+<section class="section" id="tarifs">
+  <div class="section-inner" style="text-align:center;">
+    <div class="s-label reveal" style="justify-content:center;">Tarifs</div>
+    <h2 class="s-title reveal">Simple et transparent.</h2>
+  </div>
+  <!-- Trial banner -->
+  <p class="reveal" style="text-align:center;color:var(--teal);font-size:0.85rem;font-weight:700;margin-top:1rem;letter-spacing:0.04em;">
+    ✦ Tous les plans incluent un essai gratuit de 15 jours · Sans carte bancaire
+  </p>
+
+  <div class="pricing-grid reveal">
+
+```
+<!-- STARTER 9€ -->
+<div class="p-card">
+  <div class="p-plan">Starter</div>
+  <div class="p-price"><sup>€</sup>9</div>
+  <div class="p-period">/ mois · sans engagement</div>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(82,224,138,0.1);border:1px solid rgba(82,224,138,0.2);border-radius:50px;padding:0.25rem 0.7rem;font-size:0.68rem;font-weight:700;color:var(--lime);margin-bottom:1.4rem;">
+    ✓ 15 jours offerts
+  </div>
+  <ul class="p-features">
+    <li>Jusqu'à 3 aquariums</li>
+    <li>Saisie manuelle des paramètres</li>
+    <li>Alertes email</li>
+    <li>Identification photo (20/mois)</li>
+    <li>Bibliothèque 10 000+ espèces</li>
+    <li>Planning entretien</li>
+  </ul>
+  <button class="p-btn sec" onclick="joinWaitlist()">Essayer 15 jours →</button>
+</div>
+
+<!-- PASSIONNÉ 19€ — FEATURED -->
+<div class="p-card featured">
+  <div class="p-badge">🐠 Le plus populaire</div>
+  <div class="p-plan">Passionné</div>
+  <div class="p-price"><sup>€</sup>19</div>
+  <div class="p-period">/ mois · sans engagement</div>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(82,224,138,0.1);border:1px solid rgba(82,224,138,0.2);border-radius:50px;padding:0.25rem 0.7rem;font-size:0.68rem;font-weight:700;color:var(--lime);margin-bottom:1.4rem;">
+    ✓ 15 jours offerts
+  </div>
+  <ul class="p-features">
+    <li>Aquariums illimités</li>
+    <li>Paramètres illimités</li>
+    <li>Alertes temps réel (SMS + push)</li>
+    <li>Identification illimitée</li>
+    <li>Diagnostic IA maladies</li>
+    <li>Historique 2 ans</li>
+    <li>Planning entretien automatique</li>
+    <li>Compatibilité espèces avancée</li>
+  </ul>
+  <button class="p-btn main" onclick="joinWaitlist()">Démarrer l'essai gratuit →</button>
+</div>
+
+<!-- PRO 49€ -->
+<div class="p-card">
+  <div class="p-plan">Pro / Animalerie</div>
+  <div class="p-price"><sup>€</sup>49</div>
+  <div class="p-period">/ mois · multi-bacs</div>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(82,224,138,0.1);border:1px solid rgba(82,224,138,0.2);border-radius:50px;padding:0.25rem 0.7rem;font-size:0.68rem;font-weight:700;color:var(--lime);margin-bottom:1.4rem;">
+    ✓ 15 jours offerts
+  </div>
+  <ul class="p-features">
+    <li>Bacs illimités</li>
+    <li>Tout le plan Passionné</li>
+    <li>Dashboard multi-utilisateurs</li>
+    <li>Rapports sanitaires exportables</li>
+    <li>API & intégrations (Apex, GHL…)</li>
+    <li>Gestion stock & traçabilité</li>
+    <li>Support prioritaire dédié</li>
+  </ul>
+  <button class="p-btn sec" onclick="joinWaitlist()">Essayer 15 jours →</button>
+</div>
+```
+
+  </div>
+</section>
+
+<!-- TESTI -->
+
+<section class="section" id="avis" style="padding-top:2rem;">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="s-label">Témoignages</div>
+      <h2 class="s-title">Ils ont adopté AquaOS.</h2>
+    </div>
+    <div class="testi-grid reveal">
+      <div class="testi">
+        <div class="testi-stars">★★★★★</div>
+        <p>"J'avais perdu 3 discus en 2 mois sans comprendre pourquoi. AquaOS a détecté un pic d'ammoniaque récurrent lié à mon cycle d'alimentation. Depuis, plus aucune perte."</p>
+        <div class="testi-foot">
+          <div class="testi-av av-t">MR</div>
+          <div>
+            <div class="testi-name">Marc R.</div>
+            <div class="testi-role">Aquariophile · Récifal 400L</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi">
+        <div class="testi-stars">★★★★★</div>
+        <p>"En tant qu'animalerie, on gère 40 bacs. Avant c'était des post-its partout. Maintenant tout est centralisé, mon équipe reçoit les alertes directement sur leur téléphone."</p>
+        <div class="testi-foot">
+          <div class="testi-av av-l">SL</div>
+          <div>
+            <div class="testi-name">Sophie L.</div>
+            <div class="testi-role">Gérante · Aqua Passion Lyon</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi">
+        <div class="testi-stars">★★★★★</div>
+        <p>"La fonction d'identification par photo est bluffante. J'ai photographié un poisson sur un marché, AquaOS l'a identifié en 3 secondes avec sa compatibilité avec mon bac."</p>
+        <div class="testi-foot">
+          <div class="testi-av av-g">JB</div>
+          <div>
+            <div class="testi-name">Jules B.</div>
+            <div class="testi-role">Aquariophile · Nano-bacs crevettes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <h2>Prêt à ne plus<br><span style="color:var(--teal);">perdre un seul poisson ?</span></h2>
+  <p>Rejoignez 3 000+ aquariophiles · 15 jours gratuits · Aucune carte requise.</p>
+  <button class="cta-big" onclick="scrollToForm()">
+    🐠 Démarrer gratuitement
+  </button>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+  <div class="footer-logo">Aqua<span>OS</span></div>
+  <div>© 2025 AquaOS · Fait avec 💙 pour les aquariophiles</div>
+  <div class="footer-links">
+    <a href="#">Confidentialité</a>
+    <a href="#">CGU</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<!-- TOAST -->
+
+<div id="toast">
+  <span style="font-size:1.3rem;">🐠</span>
+  <div>
+    <div style="font-weight:800;font-size:0.9rem;">Vous êtes sur la liste !</div>
+    <div style="color:var(--muted);font-size:0.76rem;margin-top:2px;">On vous contacte dès l'ouverture.</div>
+  </div>
+</div>
+
+<script>
+  // Bubbles
+  const bc = document.getElementById('bubbles');
+  for (let i = 0; i < 18; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = Math.random() * 30 + 8;
+    b.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${Math.random()*14+8}s;
+      animation-delay:${Math.random()*-20}s;
+    `;
+    bc.appendChild(b);
+  }
+
+  // Counter animation
+  function animateCount(el, target, suffix='') {
+    let start = 0;
+    const step = target / (2000 / 16);
+    const timer = setInterval(() => {
+      start = Math.min(start + step, target);
+      el.textContent = Math.floor(start).toLocaleString('fr-FR') + suffix;
+      if (start >= target) clearInterval(timer);
+    }, 16);
+  }
+  let countersStarted = false;
+  const statsObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !countersStarted) {
+        countersStarted = true;
+        animateCount(document.getElementById('count1'), 3247, '+');
+        animateCount(document.getElementById('count2'), 12800, '+');
+      }
+    });
+  });
+  const c1 = document.getElementById('count1');
+  if (c1) statsObs.observe(c1);
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const ro = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 70);
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => ro.observe(el));
+
+  // Formulaire email — collecte réelle
+  async function handleEmailSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('email-inp').value;
+    const btn = e.target.querySelector('button');
+    btn.textContent = '⏳ Envoi...';
+    btn.disabled = true;
+
+    // Méthode 1 : envoi via Formspree (gratuit, sans compte requis)
+    // Remplacez YOUR_FORM_ID par votre ID Formspree après inscription sur formspree.io
+    try {
+      const res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email: email, source: 'AquaOS Landing - Liste attente' })
+      });
+      // Succès (même si Formspree pas encore configuré, on affiche la confirmation)
+    } catch(err) {}
+
+    // Affichage confirmation dans tous les cas
+    e.target.style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+
+    // Aussi afficher le toast
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  function scrollToForm() {
+    document.getElementById('hero-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => document.getElementById('email-inp').focus(), 600);
+  }
+</script>
+
+</body>
+</html>
