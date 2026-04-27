@@ -11,13 +11,13 @@
     --deep: #020d18;
     --ocean: #041e36;
     --mid: #063455;
-    --teal: #00b4d8;
-    --aqua: #48cae4;
+    --teal: #0077b6;
+    --aqua: #0096c7;
     --lime: #52e08a;
     --coral: #ff6b6b;
     --gold: #ffd166;
-    --white: #f0f9ff;
-    --muted: #6b9ab8;
+    --white: #ffffff;
+    --muted: #90b8cc;
     --border: rgba(0,180,216,0.12);
     --card: rgba(4,30,54,0.8);
   }
@@ -91,7 +91,7 @@ transition: all 0.2s;
 }
 .btn-ghost:hover { border-color: var(–teal); color: var(–teal); }
 .btn-teal {
-background: var(–teal); color: var(–deep);
+background: var(–teal); color: #ffffff;
 border: none; border-radius: 8px;
 padding: 0.55rem 1.3rem; font-size: 0.85rem; font-weight: 800;
 cursor: pointer; font-family: ‘Cabinet Grotesk’, sans-serif;
@@ -470,8 +470,8 @@ font-size: 0.87rem; color: rgba(240,249,255,0.8);
 
 /* ===== PRICING ===== */
 .pricing-grid {
-display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
-margin-top: 4rem; max-width: 860px; margin-left: auto; margin-right: auto;
+display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+margin-top: 4rem; max-width: 1100px; margin-left: auto; margin-right: auto;
 }
 
 .p-card {
@@ -512,7 +512,7 @@ width: 100%; padding: 0.8rem; border-radius: 8px;
 font-size: 0.88rem; font-weight: 800; cursor: pointer; border: none;
 font-family: ‘Cabinet Grotesk’, sans-serif; transition: all 0.2s;
 }
-.p-btn.main { background: var(–teal); color: var(–deep); }
+.p-btn.main { background: var(–teal); color: #ffffff; }
 .p-btn.main:hover { background: var(–aqua); }
 .p-btn.sec { background: rgba(0,180,216,0.08); border: 1px solid rgba(0,180,216,0.2); color: var(–teal); }
 .p-btn.sec:hover { background: rgba(0,180,216,0.15); }
@@ -557,7 +557,7 @@ margin-bottom: 1.2rem; position: relative;
 .cta-section p { font-size: 1rem; color: var(–muted); margin-bottom: 2.5rem; position: relative; }
 .cta-big {
 display: inline-flex; align-items: center; gap: 10px;
-background: var(–teal); color: var(–deep);
+background: var(–teal); color: #ffffff;
 border: none; border-radius: 12px;
 padding: 1.1rem 2.5rem; font-size: 1rem; font-weight: 900;
 cursor: pointer; transition: all 0.3s;
@@ -679,7 +679,7 @@ footer { flex-direction: column; gap: 1.5rem; text-align: center; }
       <input type="email" id="email-inp" placeholder="votre@email.fr" required
         style="flex:1;background:none;border:none;padding:0.9rem 1.2rem;color:var(--white);font-size:0.9rem;outline:none;font-family:'Cabinet Grotesk',sans-serif;" />
       <button type="submit"
-        style="background:var(--teal);color:var(--deep);border:none;padding:0.9rem 1.5rem;font-size:0.88rem;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Cabinet Grotesk',sans-serif;transition:background 0.2s;">
+        style="background:var(--teal);color:#ffffff;border:none;padding:0.9rem 1.5rem;font-size:0.88rem;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Cabinet Grotesk',sans-serif;transition:background 0.2s;">
         Démarrer →
       </button>
     </form>
@@ -1026,6 +1026,30 @@ footer { flex-direction: column; gap: 1.5rem; text-align: center; }
     <li>Support prioritaire dédié</li>
   </ul>
   <button class="p-btn sec" onclick="joinWaitlist()">Essayer 15 jours →</button>
+</div>
+
+<!-- VIP 79€ -->
+<div class="p-card" style="border-color:var(--gold);background:linear-gradient(160deg,rgba(255,209,102,0.06) 0%,rgba(4,30,54,0.9) 60%);">
+  <div class="p-badge" style="background:linear-gradient(135deg,var(--gold),#e09c00);color:#1a1000;">👑 VIP Élite</div>
+  <div class="p-plan" style="color:var(--gold);">VIP / Grand Compte</div>
+  <div class="p-price" style="background:linear-gradient(135deg,var(--gold),#e09c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"><sup style="-webkit-text-fill-color:var(--gold);">€</sup>79</div>
+  <div class="p-period">/ mois · accès total</div>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.3);border-radius:50px;padding:0.25rem 0.7rem;font-size:0.68rem;font-weight:700;color:var(--gold);margin-bottom:1.4rem;">
+    👑 Accès prioritaire
+  </div>
+  <ul class="p-features">
+    <li>Tout le plan Pro</li>
+    <li>Onboarding personnalisé 1h</li>
+    <li>Manager dédié AquaOS</li>
+    <li>Accès beta fonctionnalités</li>
+    <li>Formation équipe incluse</li>
+    <li>SLA garanti 99.9%</li>
+    <li>Tableau de bord sur-mesure</li>
+  </ul>
+  <button class="p-btn sec" onclick="joinWaitlist()"
+    style="border-color:rgba(255,209,102,0.3);color:var(--gold);background:rgba(255,209,102,0.08);">
+    Nous contacter →
+  </button>
 </div>
 ```
 
